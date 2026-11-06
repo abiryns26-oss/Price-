@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حاسبة تسعير المنتجات الاحترافية</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --accent-color: #d4af37; /* لون ذهبي فاخر */
+            --accent-hover: #f3c642;
+            --border-color: #333;
+            --input-bg: #2a2a2a;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 2rem 1rem;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        h1 {
+            text-align: center;
+            color: var(--accent-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input:focus {
+            border-color: var(--accent-color);
+        }
+        .results {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(212, 175, 55, 0.05);
+            border: 1px dashed var(--accent-color);
+            border-radius: 8px;
+        }
+        .results h2 {
+            font-size: 1.3rem;
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+            font-size: 1.05rem;
+        }
+        .result-value {
+            font-weight: bold;
+            color: #fff;
+        }
+        .final-price {
+            font-size: 1.25rem;
+            color: var(--accent-hover);
+            border-top: 1px solid var(--border-color);
+            padding-top: 0.8rem;
+            margin-top: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>حاسبة تسعير المنتجات</h1>
+    
+    <div class="form-group">
+        <label for="directCost">تكلفة شراء أو إنتاج القطعة (التكلفة المباشرة):</label>
+        <input type="number" id="directCost" value="50" min="0" step="any" oninput="calculatePrice()">
+    </div>
+
+    <div class="form-group">
+        <label for="overheadCost">نصيب القطعة من المصاريف التشغيلية (إيجار، تسويق، إلخ):</label>
+        <input type="number" id="overheadCost" value="10" min="0" step="any" oninput="calculatePrice()">
+    </div>
+
+    <div class="form-group">
+        <label for="profitMargin">هامش الربح المستهدف (%):</label>
+        <input type="number" id="profitMargin" value="40" min="0" step="any" oninput="calculatePrice()">
+    </div>
+
+    <div class="results">
+        <h2>نتائج التسعير</h2>
+        <div class="result-item">
+            <span>إجمالي التكلفة الشاملة:</span>
+            <span class="result-value" id="totalCost">0</span>
+        </div>
+        <div class="result-item">
+            <span>قيمة الربح المتوقع بالعملة:</span>
+            <span class="result-value" id="profitAmount">0</span>
+        </div>
+        <div class="result-item">
+            <span>سعر البيع المحسوب بدقة:</span>
+            <span class="result-value" id="rawPrice">0</span>
+        </div>
+        <div class="result-item final-price">
+            <span>سعر البيع المقترح (بالتسعير النفسي .99):</span>
+            <span class="result-value" id="psychologicalPrice">0</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    function calculatePrice() {
+        const directCost = parseFloat(document.getElementById('directCost').value) || 0;
+        const overheadCost = parseFloat(document.getElementById('overheadCost').value) || 0;
+        const profitMargin = parseFloat(document.getElementById('profitMargin').value) || 0;
+
+        // 1. إجمالي التكلفة
+        const totalCost = directCost + overheadCost;
+
+        // 2. حساب سعر البيع بناءً على هامش الربح
+        const rawPrice = totalCost * (1 + (profitMargin / 100));
+
+        // 3. قيمة الربح
+        const profitAmount = rawPrice - totalCost;
+
+        // 4. التسعير النفسي (تقريب لأقرب رقم صحيح ناقص 0.01، أو ترك الرقم جذاباً)
+        // مثال: إذا كان السعر 70، يصبح 69.99، وإذا كان 72.4 يصبح 71.99 أو نحو ذلك
+        let psychPrice = Math.floor(rawPrice) + 0.99;
+        if (psychPrice < rawPrice) {
+            psychPrice += 1.00;
+        }
+
+        // عرض النتائج في الواجهة
+        document.getElementById('totalCost').innerText = totalCost.toFixed(2);
+        document.getElementById('profitAmount').innerText = profitAmount.toFixed(2);
+        document.getElementById('rawPrice').innerText = rawPrice.toFixed(2);
+        document.getElementById('psychologicalPrice').innerText = psychPrice.toFixed(2);
+    }
+
+    // التشغيل عند تحميل الصفحة لأول مرة
+    window.onload = calculatePrice;
+</script>
+
+</body>
+</html>
